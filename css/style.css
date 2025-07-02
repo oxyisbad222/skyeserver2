@@ -1,0 +1,66 @@
+/*
+ * SkyeServer Custom Stylesheet
+ * ---------------------------
+ * This file contains custom styles that complement the Tailwind CSS framework
+ * and the inline styles in index.html. It's used for more complex or
+ * global styling needs.
+ */
+
+/* Apply smooth scrolling behavior for a better user experience on TV */
+html {
+  scroll-behavior: smooth;
+}
+
+/*
+ * Content Row Styling
+ * Ensures that the rows of content can be scrolled horizontally without
+ * showing a scrollbar, which is ideal for D-pad navigation.
+ */
+.content-row-inner {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Hides the scrollbar for a cleaner TV interface */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Hides scrollbar for Chrome, Safari and Opera */
+.content-row-inner::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * Poster/Thumbnail Item Styling
+ * Defines the base styling for each piece of content. The transition
+ * here is crucial for the zoom effect on focus.
+ */
+.content-item {
+  flex: 0 0 auto; /* Prevents items from shrinking */
+  transition: transform 0.2s ease-in-out;
+  margin-right: 1rem; /* Spacing between items */
+}
+
+/*
+ * Focus State Enhancement
+ * While the main focus style is in index.html for performance,
+ * this ensures that the content item itself scales smoothly.
+ * This is a fallback and enhancement to the inline style.
+ */
+.content-item:focus {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+/*
+ * Video Player Overlay Transition
+ * Provides a smooth fade-in/fade-out effect for the video player.
+ */
+#video-player-overlay {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#video-player-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
