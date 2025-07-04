@@ -5,9 +5,6 @@
 #Live Demo
 <p>  
 <div>  
-<div align="center">  
-<img src="https://www.google.com/search?q=https://i.imgur.com/c3985afc-fa77-4835-b35b-f70653a4e365.jpg" alt="SkyeServer UI Showcase on TV, Tablet, and Phone" width="800">  
-<div>
 
 ## **✨ Features**
 
