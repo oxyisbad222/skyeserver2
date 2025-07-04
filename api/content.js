@@ -1,27 +1,21 @@
-import admin from 'firebase-admin';
+/*
+ * =================================================================================
+ * File: /api/content.js (Updated)
+ * Description: Manages content in Firestore using the centralized db instance.
+ * =================================================================================
+ */
+import { db } from './lib/firebase.js'; // Import the initialized db instance
 
-// --- Initialize Firebase Admin SDK ---
-// This needs the FIREBASE_SERVICE_ACCOUNT environment variable set in Vercel.
-try {
-    if (!admin.apps.length) {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
-    }
-} catch (error) {
-    console.error('Firebase Admin Initialization Error:', error);
-}
-
-const db = admin.firestore();
-const contentCollection = db.collection('content');
 const B2_BUCKET_URL = `https://f005.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}`;
+const contentCollection = db.collection('content');
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow requests from any origin
+    // Set CORS headers to allow requests from your frontend.
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+    // Handle preflight OPTIONS request for CORS.
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
@@ -29,7 +23,7 @@ export default async function handler(req, res) {
     try {
         switch (req.method) {
             case 'GET':
-                const snapshot = await contentCollection.get();
+                const snapshot = await contentCollection.orderBy('createdAt', 'desc').get();
                 const contentList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 return res.status(200).json(contentList);
 
@@ -40,13 +34,13 @@ export default async function handler(req, res) {
                 }
                 const newContent = {
                     title,
-                    description,
+                    description: description || '',
                     category,
-                    featured,
-                    thumbnail,
+                    featured: featured || false,
+                    thumbnail: thumbnail || '',
                     source,
                     videoUrl: `${B2_BUCKET_URL}/${encodeURIComponent(fileName)}`,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                    createdAt: new Date().toISOString()
                 };
                 const docRef = await contentCollection.add(newContent);
                 return res.status(201).json({ id: docRef.id, ...newContent });
@@ -57,8 +51,6 @@ export default async function handler(req, res) {
                     return res.status(400).json({ message: 'Content ID is required.' });
                 }
                 await contentCollection.doc(id).delete();
-                // Note: Deleting the file from Backblaze B2 should also be handled here
-                // for a complete solution, using the B2 SDK.
                 return res.status(200).json({ message: 'Content deleted successfully.' });
 
             default:
@@ -67,6 +59,6 @@ export default async function handler(req, res) {
         }
     } catch (error) {
         console.error('API Error in /api/content:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
+        return res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 }
