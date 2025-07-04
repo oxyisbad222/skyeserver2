@@ -5,45 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyeServer</title>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#007BFF">
+    <meta name="theme-color" content="#0D1117">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --theme-blue: #007BFF; }
+        :root { 
+            --theme-blue: #007BFF;
+            --background-color: #0D1117;
+        }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #374151; }
-        body { font-family: 'Inter', sans-serif; background-color: #0D1117; color: #E5E7EB; }
+        ::-webkit-scrollbar-thumb { background: #2a3b4d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374a61; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--background-color); 
+            color: #E5E7EB; 
+        }
+
+        /* --- Focus & Navigation --- */
         .focusable:focus, .nav-link:focus {
-            outline: 4px solid var(--theme-blue) !important;
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.8);
+            outline: none; /* Remove default outline */
+            box-shadow: 0 0 0 4px var(--background-color), 0 0 0 7px var(--theme-blue); /* Hulu-style focus ring */
             border-radius: 12px;
             transform: scale(1.05);
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             z-index: 10;
         }
-        .nav-link.active { background-color: var(--theme-blue); color: white; }
-        .hero-gradient { background: linear-gradient(to top, #0D1117 10%, rgba(13, 17, 23, 0) 100%); }
-        #search-overlay { transition: opacity 0.3s ease-in-out; }
+        
+        /* --- Sidebar --- */
+        .nav-link {
+            background-color: transparent; /* Ensure no default background */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .nav-link.active { 
+            background-color: var(--theme-blue); 
+            color: white;
+        }
+        .nav-link:not(.active):hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Hero Section --- */
+        .hero-gradient { 
+            background: linear-gradient(to top, var(--background-color) 5%, transparent 100%); 
+        }
+        #hero-section {
+             background-color: #1f2937; /* Fallback color while image loads */
+        }
+
+        /* --- Search --- */
+        #search-overlay { 
+            transition: opacity 0.3s ease-in-out; 
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 <body class="overflow-hidden">
 
     <!-- Main Application Container -->
-    <div id="app" class="h-screen w-screen flex">
+    <div id="app" class="h-screen w-screen flex bg-black">
         
         <!-- Sidebar Navigation -->
-        <nav id="sidebar" class="w-24 bg-black bg-opacity-25 p-4 flex flex-col items-center justify-start z-20">
+        <nav id="sidebar" class="w-24 bg-transparent p-4 flex flex-col items-center justify-start z-20">
             <div class="text-blue-500 text-4xl font-bold mb-16">S</div>
-            <ul class="flex flex-col items-center space-y-8">
-                <li><a href="#search" id="search-btn" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors" title="Search"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></a></li>
-                <li><a href="#home" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors active" data-category="home" title="Home"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg></a></li>
-                <li><a href="#movies" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors" data-category="movies" title="Movies"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55a1 1 0 01.55.89v6.22a1 1 0 01-.55.89L15 22M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"></path></svg></a></li>
-                <li><a href="#tv" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors" data-category="tv" title="TV Shows"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></a></li>
+            <ul class="flex flex-col items-center space-y-6">
+                <li><a href="#search" id="search-btn" class="nav-link focusable p-4 rounded-full" title="Search"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></a></li>
+                <li><a href="#home" class="nav-link focusable p-4 rounded-full active" data-category="home" title="Home"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg></a></li>
+                <!-- CORRECTED SVG PATH FOR MOVIES ICON -->
+                <li><a href="#movies" class="nav-link focusable p-4 rounded-full" data-category="movies" title="Movies"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path></svg></a></li>
+                <li><a href="#tv" class="nav-link focusable p-4 rounded-full" data-category="tv" title="TV Shows"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></a></li>
             </ul>
         </nav>
 
@@ -69,8 +104,8 @@
         </div>
 
         <!-- Search Overlay -->
-        <div id="search-overlay" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40">
-            <input type="text" id="search-input" class="w-3/4 md:w-1/2 p-4 text-2xl bg-gray-700 text-white rounded-lg border-2 border-gray-600 focus:outline-none focus:border-blue-500" placeholder="Search for movies or TV shows...">
+        <div id="search-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
+            <input type="text" id="search-input" class="w-3/4 md:w-1/2 p-4 text-2xl bg-gray-800 text-white rounded-lg border-2 border-gray-600 focus:outline-none focus:border-blue-500" placeholder="Search for movies or TV shows...">
         </div>
     </div>
 
