@@ -1,16 +1,16 @@
 /**
- * SkyeServer Application Logic (Final Version)
- * --------------------------------------------
+ * SkyeServer Application Logic (Production Version)
+ * -------------------------------------------------
  * This script manages all client-side functionality for the SkyeServer PWA.
- * - Fetches and renders content from the API.
- * - Implements a dynamic hero carousel.
+ * - Fetches and renders content exclusively from the live backend API.
+ * - Implements a dynamic hero carousel based on live "featured" data.
  * - Handles TV remote (D-pad) and keyboard navigation.
  * - Manages video playback, search, downloads, and external player links.
- * - Designed for a seamless experience on Android TV.
+ * - Designed for a seamless experience on Android TV and other platforms.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
-    const API_BASE_URL = '/api'; // This will point to your Vercel serverless functions
+    const API_BASE_URL = '/api'; // This points to your Vercel serverless functions
 
     // --- DOM Element References ---
     const sidebar = document.getElementById('sidebar');
@@ -40,23 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastFocusedElement;
     let isSearchActive = false;
 
-    // --- Initial Data Fetch ---
+    // --- Live Data Fetch from API ---
     const fetchAllContent = async () => {
         try {
-            // In a real app, this fetches from your live API.
-            // For now, we use a mock fetch to simulate the API call.
-            const response = await mockApiFetch(`${API_BASE_URL}/content`);
-            if (!response.ok) throw new Error('Network response was not ok');
+            const response = await fetch(`${API_BASE_URL}/content`);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Network response was not ok: ${errorText}`);
+            }
             const data = await response.json();
             
             allContent = data;
-            heroItems = data.filter(item => item.featured).slice(0, 5); // Get up to 5 featured items
+            heroItems = data.filter(item => item.featured).slice(0, 5);
             
             renderContent('home');
             startHeroCarousel();
         } catch (error) {
             console.error("Failed to fetch content:", error);
-            contentRowsContainer.innerHTML = `<p class="text-center text-red-400">Could not load content. Please check the server connection.</p>`;
+            contentRowsContainer.innerHTML = `<p class="text-center text-red-400 p-8">Could not load content. Please ensure the server is running and content has been added via the admin panel.</p>`;
+            heroSection.style.display = 'none';
         }
     };
 
@@ -79,9 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 items: allContent.filter(item => item.category === categoryOrQuery)
             }];
         } else { // This is a search query
+             const lowerCaseQuery = categoryOrQuery.toLowerCase();
              contentToRender = [{
                 title: `Search Results for "${categoryOrQuery}"`,
-                items: allContent.filter(item => item.title.toLowerCase().includes(categoryOrQuery.toLowerCase()))
+                items: allContent.filter(item => item.title.toLowerCase().includes(lowerCaseQuery))
             }];
         }
         
@@ -93,11 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Set focus on the first item of the first row for navigation
-        const firstItem = contentRowsContainer.querySelector('.focusable');
-        if (firstItem) {
-            // Delay focus to ensure rendering is complete
-            setTimeout(() => firstItem.focus(), 100);
-        }
+        setTimeout(() => {
+            const firstFocusable = mainContent.querySelector('.focusable');
+            if (firstFocusable) firstFocusable.focus();
+        }, 100);
     };
 
     const createContentRow = (title, items) => {
@@ -116,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemEl = document.createElement('div');
             itemEl.className = 'content-item focusable rounded-lg overflow-hidden shadow-lg bg-gray-800 w-40 md:w-48 mr-4 flex-shrink-0';
             itemEl.tabIndex = 0;
-            itemEl.innerHTML = `<img src="${item.thumbnail}" alt="${item.title}" class="w-full h-full object-cover">`;
+            itemEl.innerHTML = `<img src="${item.thumbnail}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x600/0d1117/FFF?text=No+Image';">`;
             
             itemEl.addEventListener('click', () => updateHero(item));
             itemEl.addEventListener('keydown', (e) => {
@@ -133,13 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Hero Section Logic ---
     const updateHero = (item) => {
+        if (!item) return;
         heroSection.style.backgroundImage = `url('${item.thumbnail}')`;
         heroTitle.textContent = item.title;
         heroDescription.textContent = item.description;
 
         heroButtons.innerHTML = `
             <button data-url="${item.videoUrl}" class="play-btn focusable flex items-center bg-white text-black font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-transform">
-                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm3.5 2.5a.5.5 0 01.832.374l1.5 6a.5.5 0 01-.832.374l-1.5-6A.5.5 0 017.5 6.5zM15 12a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
+                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
                 Watch Now
             </button>
             <a href="${item.videoUrl}" download="${item.title}.mp4" class="download-btn focusable flex items-center bg-gray-700 bg-opacity-50 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-600 transition-transform">Download</a>
@@ -149,14 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const startHeroCarousel = () => {
         if (heroItems.length > 0) {
+            heroSection.style.display = 'flex';
             updateHero(heroItems[0]);
-            clearInterval(heroInterval); // Clear any existing interval
+            clearInterval(heroInterval);
             heroInterval = setInterval(() => {
                 currentHeroIndex = (currentHeroIndex + 1) % heroItems.length;
                 updateHero(heroItems[currentHeroIndex]);
-            }, 7000); // Change hero item every 7 seconds
+            }, 7000);
         } else {
-             heroSection.style.display = 'none'; // Hide hero if no featured content
+             heroSection.style.display = 'none';
         }
     };
     
@@ -216,14 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (prevItem && prevItem.classList.contains('focusable')) {
                 prevItem.focus();
             } else if (activeElement.closest('.content-row') || activeElement.closest('#hero-buttons')) {
-                // If at start of a row, focus the active nav link
                 document.querySelector('.nav-link.active')?.focus();
             }
         } else if (key === 'ArrowRight') {
              if (sidebar.contains(activeElement)) {
-                // From sidebar to content
                 const firstHeroButton = heroButtons.querySelector('.focusable');
-                if (firstHeroButton) {
+                if (firstHeroButton && heroSection.style.display !== 'none') {
                     firstHeroButton.focus();
                 } else {
                     contentRowsContainer.querySelector('.focusable')?.focus();
@@ -238,10 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeElement.closest('.content-row')) {
                 const currentRow = activeElement.closest('.content-row');
                 const prevRow = currentRow.previousElementSibling;
-                if (prevRow) {
+                if (prevRow && prevRow.classList.contains('content-row')) {
                     findNearestItemInRow(activeElement, prevRow)?.focus();
-                } else {
-                    // From top row to hero buttons
+                } else if (heroSection.style.display !== 'none') {
                     findNearestItemInRow(activeElement, heroButtons)?.focus();
                 }
             } else if (sidebar.contains(activeElement)) {
@@ -255,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentIndex = focusableLinks.indexOf(activeElement);
                 if (currentIndex < focusableLinks.length - 1) focusableLinks[currentIndex + 1].focus();
             } else if (activeElement.closest('#hero-buttons')) {
-                 // From hero buttons to first content row
                  const firstRow = contentRowsContainer.querySelector('.content-row');
                  if (firstRow) findNearestItemInRow(activeElement, firstRow)?.focus();
             } else if (activeElement.closest('.content-row')) {
@@ -304,29 +304,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', handleNavigation);
     closePlayerButton.addEventListener('click', closePlayer);
     
-    // Use event delegation for dynamically added buttons
     document.addEventListener('click', (e) => {
         const playButton = e.target.closest('.play-btn');
         if (playButton) {
             playVideo(playButton.dataset.url);
         }
     });
-
-    // --- Mock API Fetch for Demonstration ---
-    const mockApiFetch = (url) => {
-        console.log(`Mock fetching from: ${url}`);
-        const mockData = [
-            { id: 'mov1', title: 'Dune: Part Two', category: 'movies', featured: true, description: 'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.', thumbnail: 'https://www.themoviedb.org/t/p/w1280/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
-            { id: 'mov2', title: 'The Creator', category: 'movies', featured: true, description: 'Against the backdrop of a war between humans and robots with artificial intelligence, a former soldier finds the secret weapon, a robot in the form of a young child.', thumbnail: 'https://www.themoviedb.org/t/p/w1280/vB8o2p4ETnrfiEGYgKIFF9yjivU.jpg', videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
-            { id: 'tv1', title: 'Fallout', category: 'tv', featured: true, description: 'In a future, post-apocalyptic Los Angeles brought about by nuclear decimation, citizens must live in underground bunkers to protect themselves from radiation, mutants and bandits.', thumbnail: 'https://www.themoviedb.org/t/p/w1280/p31z5VjASyK1d23rR6A2LhS4vEL.jpg', videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4' },
-            { id: 'mov3', title: 'Oppenheimer', category: 'movies', featured: false, description: 'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.', thumbnail: 'https://www.themoviedb.org/t/p/w1280/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' },
-            { id: 'tv2', title: 'Shōgun', category: 'tv', featured: false, description: 'In Japan in the year 1600, at the dawn of a century-defining civil war, Lord Yoshii Toranaga is fighting for his life as his enemies on the Council of Regents unite against him.', thumbnail: 'https://www.themoviedb.org/t/p/w1280/7O4iVfOMQmdCS2Mv0497YORnDP1.jpg', videoUrl: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4' },
-        ];
-        return Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve(mockData),
-        });
-    };
 
     // --- App Initialization ---
     fetchAllContent();
