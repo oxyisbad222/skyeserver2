@@ -4,59 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyeServer</title>
-    
-    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
-    
-    <!-- Theme Color for browsers -->
     <meta name="theme-color" content="#007BFF">
-
-    <!-- Tailwind CSS for rapid UI development -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="/css/style.css">
-
-    <!-- Google Fonts for a modern look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
-        /* Custom scrollbar for a more polished aesthetic */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0d1117;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1f2937;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #374151;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0D1117; /* Dark background similar to streaming apps */
-            color: #E5E7EB; /* Light text for contrast */
-        }
-        /* * Critical for TV remote navigation. 
-         * This provides clear visual feedback on the currently selected item.
-         */
-        .focusable:focus {
-            outline: 4px solid #007BFF;
+        :root { --theme-blue: #007BFF; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+        body { font-family: 'Inter', sans-serif; background-color: #0D1117; color: #E5E7EB; }
+        .focusable:focus, .nav-link:focus {
+            outline: 4px solid var(--theme-blue) !important;
             box-shadow: 0 0 15px rgba(0, 123, 255, 0.8);
-            border-radius: 8px;
+            border-radius: 12px;
             transform: scale(1.05);
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             z-index: 10;
         }
-        .nav-link.active {
-            background-color: #007BFF;
-            color: white;
-        }
+        .nav-link.active { background-color: var(--theme-blue); color: white; }
+        .hero-gradient { background: linear-gradient(to top, #0D1117 10%, rgba(13, 17, 23, 0) 100%); }
+        #search-overlay { transition: opacity 0.3s ease-in-out; }
     </style>
 </head>
 <body class="overflow-hidden">
@@ -65,45 +37,53 @@
     <div id="app" class="h-screen w-screen flex">
         
         <!-- Sidebar Navigation -->
-        <nav id="sidebar" class="w-20 md:w-24 bg-black bg-opacity-25 p-4 flex flex-col items-center space-y-8 transition-all duration-300 z-20">
-            <!-- Logo Placeholder -->
-            <div class="text-blue-500 text-3xl font-bold">S</div>
-            <!-- Navigation Links -->
-            <ul class="flex flex-col items-center space-y-6 mt-12">
-                <li><a href="#home" class="nav-link focusable p-3 rounded-full bg-gray-800 hover:bg-blue-600 transition-colors active" data-category="home" title="Home"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></a></li>
-                <li><a href="#movies" class="nav-link focusable p-3 rounded-full hover:bg-blue-600 transition-colors" data-category="movies" title="Movies"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55a1 1 0 01.55.89v6.22a1 1 0 01-.55.89L15 22M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" /></svg></a></li>
-                <li><a href="#tv" class="nav-link focusable p-3 rounded-full hover:bg-blue-600 transition-colors" data-category="tv" title="TV Shows"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></a></li>
-                <li><a href="#other" class="nav-link focusable p-3 rounded-full hover:bg-blue-600 transition-colors" data-category="other" title="Other"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg></a></li>
+        <nav id="sidebar" class="w-24 bg-black bg-opacity-25 p-4 flex flex-col items-center justify-start z-20">
+            <div class="text-blue-500 text-4xl font-bold mb-16">S</div>
+            <ul class="flex flex-col items-center space-y-8">
+                <li><a href="#search" id="search-btn" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors" title="Search"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></a></li>
+                <li><a href="#home" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors active" data-category="home" title="Home"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg></a></li>
+                <li><a href="#movies" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors" data-category="movies" title="Movies"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55a1 1 0 01.55.89v6.22a1 1 0 01-.55.89L15 22M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"></path></svg></a></li>
+                <li><a href="#tv" class="nav-link focusable p-4 rounded-full hover:bg-blue-600 transition-colors" data-category="tv" title="TV Shows"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></a></li>
             </ul>
         </nav>
 
         <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 p-4 md:p-8 overflow-y-auto">
-            <!-- This section will be dynamically populated by JavaScript -->
-            <div id="content-rows">
-                <!-- Example Row Structure -->
-                <!-- 
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold mb-4">Featured Movies</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                        <div class="focusable rounded-lg overflow-hidden shadow-lg bg-gray-800" tabindex="0">
-                            <img src="https://placehold.co/400x600/0d1117/FFF?text=Movie+1" class="w-full h-auto object-cover">
-                        </div>
+        <main id="main-content" class="flex-1 overflow-y-auto overflow-x-hidden">
+            <section id="hero-section" class="relative h-2/3 md:h-3/4 flex items-end p-8 md:p-12 text-white" style="background-size: cover; background-position: center top; transition: background-image 0.5s ease-in-out;">
+                <div class="absolute inset-0 hero-gradient"></div>
+                <div id="hero-content" class="relative z-10 w-full md:w-1/2">
+                    <h1 id="hero-title" class="text-4xl md:text-6xl font-bold drop-shadow-lg"></h1>
+                    <p id="hero-description" class="mt-4 text-lg max-w-prose drop-shadow-md"></p>
+                    <div id="hero-buttons" class="mt-8 flex items-center space-x-4">
+                        <!-- Buttons injected by JS -->
                     </div>
-                </div> 
-                -->
-            </div>
+                </div>
+            </section>
+            <div id="content-rows" class="p-8 md:p-12"></div>
         </main>
         
         <!-- Video Player Overlay -->
         <div id="video-player-overlay" class="hidden fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
             <video id="video-player" class="w-full h-full" controls autoplay></video>
-            <button id="close-player" class="focusable absolute top-5 right-5 text-white text-4xl font-bold hover:text-blue-500 transition-colors">&times;</button>
+            <button id="close-player" class="focusable absolute top-5 right-5 text-white text-4xl font-bold hover:text-blue-500">&times;</button>
         </div>
 
+        <!-- Search Overlay -->
+        <div id="search-overlay" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40">
+            <input type="text" id="search-input" class="w-3/4 md:w-1/2 p-4 text-2xl bg-gray-700 text-white rounded-lg border-2 border-gray-600 focus:outline-none focus:border-blue-500" placeholder="Search for movies or TV shows...">
+        </div>
     </div>
 
-    <!-- Application Logic -->
     <script src="/js/app.js" type="module"></script>
+    <script>
+        // Register Service Worker for PWA offline capabilities
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('Service Worker registered: ', registration))
+                    .catch(error => console.log('Service Worker registration failed: ', error));
+            });
+        }
+    </script>
 </body>
 </html>
