@@ -1,17 +1,16 @@
-\<div align="center"\>  
-\<img src="https://www.google.com/search?q=https://i.imgur.com/your-logo-here.png" alt="SkyeServer Logo" width="150"\>  
-\<h1\>SkyeServer\</h1\>  
-\<p\>\<strong\>Your Personal Streaming Universe. Effortlessly host, manage, and watch your media library on any device, anywhere.\</strong\>\</p\>  
-\<p\>  
-\<a href="\#-features"\>Features\</a\> •  
-\<a href="\#-why-skyeserver"\>Why SkyeServer?\</a\> •  
-\<a href="\#-tech-stack"\>Tech Stack\</a\> •  
-\<a href="\#-live-demo"\>Live Demo\</a\>  
-\</p\>  
-\</div\>  
-\<div align="center"\>  
-\<img src="https://www.google.com/search?q=https://i.imgur.com/c3985afc-fa77-4835-b35b-f70653a4e365.jpg" alt="SkyeServer UI Showcase on TV, Tablet, and Phone" width="800"\>  
-\</div\>
+
+<h1>SkyeServer<h1\>  
+<p><p>
+  
+<a><a> href= #features>Features<a> •  
+<a href=" #-why-skyeserver">Why SkyeServer?<a> •  
+<a href=" #-tech-stack">Tech Stack<a> •  
+#Live Demo
+<p>  
+<div>  
+<div align="center">  
+<img src="https://www.google.com/search?q=https://i.imgur.com/c3985afc-fa77-4835-b35b-f70653a4e365.jpg" alt="SkyeServer UI Showcase on TV, Tablet, and Phone" width="800">  
+<div>
 
 ## **✨ Features**
 
