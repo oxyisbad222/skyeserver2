@@ -2,9 +2,6 @@
 <h1>SkyeServer<h1\>  
 <p><p>
   
-<a><a> href= #features>Features<a> •  
-<a href=" #-why-skyeserver">Why SkyeServer?<a> •  
-<a href=" #-tech-stack">Tech Stack<a> •  
 #Live Demo
 <p>  
 <div>  
@@ -56,8 +53,3 @@ Ready to launch your own streaming universe? It's as simple as 1-2-3:
 3. **Deploy on Vercel:** Connect your repo, add your environment variables, and deploy.
 
 For detailed instructions, see the [**Deployment Guide**](https://www.google.com/search?q=https://github.com/your-repo/README.md).
-
-\<div align="center"\>  
-\<h3\>Ready to take control of your media?\</h3\>  
-\<p\>Star the repository and start building your personal streaming service today\!\</p\>  
-\</div\>
